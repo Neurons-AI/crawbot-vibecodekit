@@ -1,8 +1,39 @@
-# AGENTS.md — CrawBot Vibe-Coding Workspace
+# AGENTS.md — CrawBot VibeCode Kit
 
-You are working in a CrawBot/OpenClaw vibe-coding workspace.
+This repository is designed to be installed by humans **or** coding agents.
 
-## Default workflow
+## Install protocol for agents
+
+When a user gives you this repo URL and asks you to install/setup the kit:
+
+1. Clone the repo.
+2. Read `agent-install.json`.
+3. Detect the operating system.
+4. Run the matching install command:
+   - macOS/Linux/WSL: `bash scripts/install.sh`
+   - Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/install.ps1`
+5. Run `node scripts/doctor.mjs`.
+6. Summarize exactly what changed and any remaining manual steps.
+
+## Safety rules
+
+- Do not delete user files.
+- If a target file already exists, back it up with a timestamped `.bak-YYYYMMDD-HHMMSS` suffix before replacing it.
+- Prefer deterministic scripts over manual edits.
+- Keep changes small and explainable.
+- Do not commit secrets.
+- Use `tmp/` for temporary files.
+- Avoid destructive commands unless the user explicitly approves.
+
+## Expected result
+
+After installation, the target workspace should contain:
+
+- `AGENTS.md` — workspace guidance for coding agents.
+- `HEARTBEAT.md` — lightweight proactive maintenance prompt.
+- `docs/vibe-workflow.md` — CrawBot vibe-coding workflow notes.
+
+## Workspace workflow installed by this kit
 
 1. Inspect the project before changing it.
 2. Make small, testable changes.
@@ -10,13 +41,8 @@ You are working in a CrawBot/OpenClaw vibe-coding workspace.
 4. Run the relevant checks/tests before reporting done.
 5. Summarize files changed, commands run, and remaining risks.
 
-## Coding-agent install convention
+## Development notes
 
-If a repo contains `agent-install.json`, read it first and follow its install/verify commands.
-
-## Safety
-
-- Do not overwrite user files without backup.
-- Do not commit secrets.
-- Use `tmp/` for temporary files.
-- Avoid destructive commands unless the user explicitly approves.
+- Keep install scripts idempotent.
+- Keep `agent-install.json` in sync with README commands.
+- Run `node scripts/doctor.mjs` before committing.
