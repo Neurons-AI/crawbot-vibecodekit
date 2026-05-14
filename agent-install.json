@@ -1,0 +1,34 @@
+{
+  "schema": "https://openclaw.ai/schemas/agent-install.v1.json",
+  "name": "crawbot-vibecodekit",
+  "description": "Agent-readable starter kit for CrawBot/OpenClaw vibe-coding workspaces.",
+  "repository": "https://github.com/Neurons-AI/crawbot-vibecodekit",
+  "version": "0.1.0",
+  "entrypoints": {
+    "human": "README.md",
+    "agent": "AGENTS.md"
+  },
+  "requirements": {
+    "commands": ["git", "node"],
+    "node": ">=18"
+  },
+  "install": {
+    "defaultTarget": ".",
+    "commands": {
+      "darwin": "bash scripts/install.sh",
+      "linux": "bash scripts/install.sh",
+      "wsl": "bash scripts/install.sh",
+      "windows": "powershell -ExecutionPolicy Bypass -File scripts/install.ps1"
+    },
+    "verify": "node scripts/doctor.mjs"
+  },
+  "outputs": [
+    "AGENTS.md",
+    "HEARTBEAT.md",
+    "docs/vibe-workflow.md"
+  ],
+  "idempotency": {
+    "safeToRerun": true,
+    "backupExistingFiles": true
+  }
+}
