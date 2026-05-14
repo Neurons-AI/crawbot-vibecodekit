@@ -1,6 +1,6 @@
 ---
 name: vibe-builder
-description: Build, grow, and let CrawBot manage small personal apps for non-technical users with a friendly question-first vibe-coding workflow. Use when the user asks to make, scaffold, vibe code, prototype, iterate, fix, add features to, start/stop, or manage a personal web/desktop/mobile app. Covers simple product questions, platform choice (web/desktop/mobile), automatic tech-stack selection, local data storage, built-in user instructions, automatic bug-fix loops, safe feature-addition workflow, schema migrations, in-app error reporting, and CrawBot project lifecycle (vibe-app.json manifest, projects/ workspace, start/stop scripts).
+description: Build, grow, and let CrawBot manage small personal apps for non-technical users with a friendly question-first vibe-coding workflow. Use when the user asks to make, scaffold, vibe code, prototype, iterate, fix, add features to, start/stop, install/setup, or manage a personal web/desktop/mobile app. Covers first-run setup of the coding harness (install + login acpx, OpenClaw, Codex; grant sandbox/approval permissions), simple product questions, platform choice (web/desktop/mobile), automatic tech-stack selection, local data storage, built-in user instructions, automatic bug-fix loops, safe feature-addition workflow, schema migrations, in-app error reporting, and CrawBot project lifecycle (vibe-app.json manifest, projects/ workspace, start/stop scripts).
 ---
 
 # Vibe Builder
@@ -87,6 +87,76 @@ Direct | Hybrid | Delegate — <reason>
 - <manual or automated check>
 - <built-in help present>
 ```
+
+## First-run setup (acpx + coding agents)
+
+Before any real coding, make sure the host has the delegation harness ready. Run this check at the **start of the first session** with a new user, or whenever delegation fails with "command not found" / "not logged in" / "permission denied".
+
+Quick check command (run before scaffolding):
+
+```bash
+which acpx && acpx --version
+which openclaw && openclaw --version
+which codex && codex --version
+```
+
+If anything is missing or unauthenticated, walk the user through setup in plain VN. **Don't make the non-tech user google it.** Detailed runbook lives in `references/agent-setup.md`. Summary:
+
+### 1. Install acpx
+
+- macOS / Linux: `npm i -g @openclaw/acpx` (or the project-recommended install command).
+- Windows: same, run inside Ubuntu WSL (per anh's terminal preference) or PowerShell as admin if WSL not available.
+- Verify: `acpx --version`.
+
+### 2. Install + login OpenClaw
+
+- Install: `npm i -g @anthropic-ai/openclaw` (or whatever the current channel is).
+- Login: `openclaw login` → opens browser → user signs in with Anthropic / Claude account.
+- Verify: `openclaw --version` and `openclaw whoami` (or equivalent).
+- If user is on the bundled CrawBot OpenClaw, skip global install; just confirm login state.
+
+### 3. Install + login Codex
+
+- Install: `npm i -g @openai/codex` (or the official channel).
+- Login: `codex login` → browser OAuth with ChatGPT account (Plus/Pro/Team plan recommended for usage limits).
+- Verify: `codex --version` and a quick `codex` ping (`echo "say hi" | codex --print`).
+
+### 4. Grant permissions (sandbox / approvals)
+
+The harnesses run in restricted sandbox by default. For vibe-coding personal apps the agent needs more freedom or it will stall asking the user.
+
+- **OpenClaw**: set `--permission-mode bypassPermissions` in delegate calls (per the `coding-agent` skill convention). Never enable globally without telling the user.
+- **Codex**: run with `--ask-for-approval never --sandbox workspace-write` (or `danger-full-access` only when the user explicitly opts in and the workspace is isolated).
+- **acpx**: pass through the harness's auto-approval flag and pin `cwd` to the **specific app folder** (`projects/<slug>`), never the whole workspace. This contains blast radius.
+- **macOS**: first `codex`/`openclaw` run may trigger Gatekeeper / Full Disk Access prompts; tell user to approve in System Settings → Privacy & Security.
+- **Windows**: first run may trigger SmartScreen + Defender; "More info → Run anyway" + add npm global bin to PATH if commands not found.
+- **WSL**: ensure `~/.local/bin` or npm global prefix is on `$PATH`. Add to `~/.bashrc` / `~/.zshrc` if missing.
+
+Always confirm with the user before granting `danger-full-access` or any system-wide permission. Default to the **narrowest scope that lets the work happen**.
+
+### 5. Smoke-test the harness
+
+After setup, run a tiny delegate task as a sanity check (don't skip):
+
+```bash
+acpx run --agent codex --cwd projects/_smoke --task "create hello.txt with text 'ok'"
+```
+
+If it succeeds and `hello.txt` exists → harness is ready. If it fails, capture the error and walk through troubleshooting in `references/agent-setup.md` instead of charging into the user's app.
+
+### 6. Persistence
+
+Remember setup state in `<workspace>/MEMORY.md` or `memory/YYYY-MM-DD.md` so future sessions skip the check:
+
+```md
+- acpx installed: <version>, login: ok
+- openclaw installed: <version>, login: <account>
+- codex installed: <version>, login: <account>
+- Permission mode: openclaw=bypassPermissions, codex=workspace-write/never-ask
+- Last verified: <date>
+```
+
+Re-verify when: harness call fails, user changes machine, OS upgrade, or it's been >30 days.
 
 ## Project location & CrawBot integration
 
@@ -451,3 +521,4 @@ Append the version + date to `docs/vibe-changelog.md` for each release.
 - `references/feature-add.md` — full Change-brief template + feature-addition checklist.
 - `references/bug-fix-loop.md` — failure classification cheatsheet for the auto bug-fix loop.
 - `references/crawbot-integration.md` — full `vibe-app.json` schema, lifecycle contract, examples per platform.
+- `references/agent-setup.md` — install + login + permissions runbook for acpx, OpenClaw, Codex (plain VN, non-tech friendly).
