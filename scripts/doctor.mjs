@@ -12,7 +12,9 @@ const required = [
   'HEARTBEAT.md',
   path.join('docs', 'vibe-workflow.md'),
   path.join('skills', 'vibe-builder', 'SKILL.md'),
-  path.join('skills', 'vibe-builder', 'references', 'mode-heuristics.md')
+  path.join('skills', 'vibe-builder', 'references', 'mode-heuristics.md'),
+  path.join('skills', 'vibe-builder', 'references', 'feature-add.md'),
+  path.join('skills', 'vibe-builder', 'references', 'bug-fix-loop.md')
 ];
 
 const missing = required.filter((file) => !fs.existsSync(path.join(target, file)));
