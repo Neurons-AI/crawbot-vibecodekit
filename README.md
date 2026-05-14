@@ -44,10 +44,13 @@ If you are an AI coding agent asked to install this kit:
 .
 ├── AGENTS.md                 # Human/agent operating instructions
 ├── agent-install.json        # Machine-readable install manifest
+├── skills/
+│   └── vibe-builder/         # Hybrid direct/delegated app-building skill
 ├── templates/                # Files copied into a workspace
 │   ├── AGENTS.md
 │   ├── HEARTBEAT.md
-│   └── vibe-workflow.md
+│   ├── vibe-workflow.md
+│   └── skills/vibe-builder/
 └── scripts/
     ├── install.sh            # macOS/Linux/WSL installer
     ├── install.ps1           # Windows installer

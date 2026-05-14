@@ -9,7 +9,10 @@
     "agent": "AGENTS.md"
   },
   "requirements": {
-    "commands": ["git", "node"],
+    "commands": [
+      "git",
+      "node"
+    ],
     "node": ">=18"
   },
   "install": {
@@ -25,7 +28,9 @@
   "outputs": [
     "AGENTS.md",
     "HEARTBEAT.md",
-    "docs/vibe-workflow.md"
+    "docs/vibe-workflow.md",
+    "skills/vibe-builder/SKILL.md",
+    "skills/vibe-builder/references/mode-heuristics.md"
   ],
   "idempotency": {
     "safeToRerun": true,

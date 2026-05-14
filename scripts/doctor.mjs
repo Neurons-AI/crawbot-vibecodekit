@@ -10,7 +10,9 @@ const target = path.resolve(targetIndex >= 0 ? args[targetIndex + 1] : process.c
 const required = [
   'AGENTS.md',
   'HEARTBEAT.md',
-  path.join('docs', 'vibe-workflow.md')
+  path.join('docs', 'vibe-workflow.md'),
+  path.join('skills', 'vibe-builder', 'SKILL.md'),
+  path.join('skills', 'vibe-builder', 'references', 'mode-heuristics.md')
 ];
 
 const missing = required.filter((file) => !fs.existsSync(path.join(target, file)));

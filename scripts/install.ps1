@@ -16,6 +16,10 @@ function Copy-WithBackup($Src, $Dest) {
 Copy-WithBackup "$Root/templates/AGENTS.md" "$Target/AGENTS.md"
 Copy-WithBackup "$Root/templates/HEARTBEAT.md" "$Target/HEARTBEAT.md"
 Copy-WithBackup "$Root/templates/vibe-workflow.md" "$Target/docs/vibe-workflow.md"
+New-Item -ItemType Directory -Force -Path "$Target/skills" | Out-Null
+if (Test-Path "$Target/skills/vibe-builder") { Copy-Item "$Target/skills/vibe-builder" "$Target/skills/vibe-builder.bak-$Stamp" -Recurse -Force }
+if (Test-Path "$Target/skills/vibe-builder") { Remove-Item "$Target/skills/vibe-builder" -Recurse -Force }
+Copy-Item "$Root/templates/skills/vibe-builder" "$Target/skills/vibe-builder" -Recurse -Force
 New-Item -ItemType Directory -Force -Path "$Target/tmp" | Out-Null
 
 Write-Host "Installed CrawBot VibeCode Kit into: $Target"
