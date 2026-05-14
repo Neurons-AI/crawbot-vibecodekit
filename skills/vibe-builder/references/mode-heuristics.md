@@ -34,6 +34,43 @@ Good for:
 
 Default stack: React Native desktop-oriented app + SQLite + local files/config. If this is too heavy, recommend a local web app with auto-start as v1.
 
+### Desktop install guide (non-tech)
+
+Always include in `docs/install-desktop.md` and shorter version in in-app help:
+
+- Download link/file location per OS (Win/macOS/Linux).
+- Exact installer filename.
+- Open/install steps including OS security warnings (SmartScreen, Gatekeeper).
+- How to launch after install.
+- How to update.
+- How to uninstall.
+- Where local data is stored for backup.
+
+Never tell a non-tech user to clone a repo or run `npm`.
+
+### Mobile install + share guide (non-tech)
+
+Always include in `docs/install-mobile.md` and shorter version in in-app help. Split into two clearly labeled blocks:
+
+```md
+## Người làm app chạy
+- npx expo start
+- Lấy QR code / link
+- (Optional) eas update để có link bền
+
+## Người dùng làm
+1. Cài Expo Go từ App Store / Google Play.
+2. Mở Expo Go.
+3. Quét QR code hoặc paste link.
+4. Đợi app load lần đầu rồi dùng.
+```
+
+Also explain:
+
+- Cách chia sẻ app: gửi QR/link, publish `eas update`, hoặc build standalone qua `eas build` cho TestFlight/APK.
+- Cách cập nhật.
+- Lỗi thường gặp (Wi-Fi, tunnel mode, QR không quét được trên iPhone).
+
 ### Mobile/tablet app
 
 Good for:

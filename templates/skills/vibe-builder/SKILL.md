@@ -119,6 +119,21 @@ Implementation notes:
 - Prefer simple local storage and simple packaging first.
 - If React Native desktop support is too heavy for the current environment, explain the tradeoff and suggest a web app packaged/auto-started as the simpler v1.
 
+**Required user-facing install guide (non-tech).** Every desktop app must ship a step-by-step install guide in plain language, covering the user's OS (Windows, macOS, Linux). Put it in `docs/install-desktop.md` AND surface a shorter version inside the app's “Hướng dẫn sử dụng” section. Include:
+
+- Where to download the installer file (release page URL, direct link, or local file path).
+- Exact filename to look for per OS (e.g. `MyApp-1.0.0-Setup.exe`, `MyApp-1.0.0.dmg`, `MyApp-1.0.0.AppImage`).
+- How to open the downloaded file:
+  - Windows: double-click `.exe`, click “More info → Run anyway” if SmartScreen warns.
+  - macOS: open `.dmg`, drag app into Applications, first run via right-click → Open to bypass Gatekeeper.
+  - Linux: `chmod +x` the AppImage and double-click, or `sudo dpkg -i` for `.deb`.
+- How to launch the app after install (Start Menu, Launchpad, Applications folder).
+- How to update to a new version.
+- How to uninstall safely.
+- Where local data is stored on each OS so user can backup.
+
+If user is not technical, prefer one-click installers over manual `npm`/CLI steps. Never tell a non-tech user to clone a repo.
+
 ### Mobile/tablet app
 
 Use for iPhone/iPad/Android prototypes.
@@ -134,7 +149,33 @@ Implementation notes:
 
 - Favor Expo-compatible libraries.
 - Avoid native modules that require custom builds unless clearly needed.
-- Always include simple steps: install Expo Go, scan QR code, test app.
+
+**Required user-facing install + share guide (non-tech).** Every mobile app must ship a step-by-step guide for using Expo Go in plain language. Put it in `docs/install-mobile.md` AND surface a shorter version inside the app's “Hướng dẫn sử dụng” section. Include:
+
+1. **Cài Expo Go**:
+   - iPhone/iPad: mở App Store → tìm “Expo Go” → cài.
+   - Android: mở Google Play → tìm “Expo Go” → cài.
+2. **Mở app lần đầu**:
+   - Mở Expo Go.
+   - Quét QR code (hoặc nhập link `exp://...` mà builder gửi).
+   - Đợi app load lần đầu (vài giây tới 1 phút).
+3. **Cách lấy QR/link để dùng app**:
+   - Builder chạy `npx expo start` → màn hình hiện QR code + link.
+   - Cách gửi cho người khác:
+     - Bấm “Share” trong Expo Dev Tools để lấy link công khai.
+     - Hoặc dùng `eas update` / Expo published channel để có link cố định, người dùng chỉ cần mở Expo Go → “Recently in development” / paste link là chạy.
+4. **Chia sẻ app cho người khác dùng thử**:
+   - Cách nhanh: gửi QR code/link Expo Go.
+   - Cách bền hơn: publish qua `eas update` để có URL dùng lại nhiều lần.
+   - Cách chính thức: build standalone bằng `eas build` rồi nộp TestFlight (iOS) hoặc cho file `.apk` (Android).
+5. **Cập nhật app**:
+   - Nếu dùng Expo Go + `eas update`: mở app lại là tự nhận bản mới.
+   - Nếu dùng standalone build: cần cài bản mới.
+6. **Khắc phục lỗi thường gặp**:
+   - App trắng/không load: kiểm tra cùng Wi-Fi với máy builder, hoặc dùng “Tunnel” mode trong `expo start`.
+   - QR code không quét được trên iPhone: dùng app Camera mặc định scan, hoặc paste link vào Expo Go.
+
+Always include the exact command(s) the builder runs and the exact action the end user does, in two clearly labeled blocks: “Người làm app chạy” vs “Người dùng làm”.
 
 ## Built-in help requirement
 
