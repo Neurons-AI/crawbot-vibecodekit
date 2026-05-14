@@ -1,6 +1,6 @@
 ---
 name: vibe-builder
-description: Build and grow small personal apps for non-technical users with a friendly question-first vibe-coding workflow. Use when the user asks to make, scaffold, vibe code, prototype, iterate, fix, or add features to a personal web/desktop/mobile app, especially when they need simple questions about what app they want, platform choice (web, desktop/laptop, mobile/tablet), automatic tech-stack selection, local data storage, built-in user instructions, automatic bug-fix loops, safe feature-addition workflow, schema migrations, in-app error reporting, and a decision on whether the main assistant should code directly or delegate execution to Codex/Claude/acpx.
+description: Build, grow, and let CrawBot manage small personal apps for non-technical users with a friendly question-first vibe-coding workflow. Use when the user asks to make, scaffold, vibe code, prototype, iterate, fix, add features to, start/stop, or manage a personal web/desktop/mobile app. Covers simple product questions, platform choice (web/desktop/mobile), automatic tech-stack selection, local data storage, built-in user instructions, automatic bug-fix loops, safe feature-addition workflow, schema migrations, in-app error reporting, and CrawBot project lifecycle (vibe-app.json manifest, projects/ workspace, start/stop scripts).
 ---
 
 # Vibe Builder
@@ -88,10 +88,104 @@ Direct | Hybrid | Delegate — <reason>
 - <built-in help present>
 ```
 
+## Project location & CrawBot integration
+
+Every app built by this skill **must** live inside the agent workspace so CrawBot can manage it:
+
+```
+<workspace>/projects/<app-slug>/
+```
+
+- `<app-slug>` is kebab-case, derived from the user-facing name (e.g. "App quản lý chi tiêu" → `quan-ly-chi-tieu`).
+- Never scaffold outside `<workspace>/projects/`. If user asks for another path, explain CrawBot won't see/manage it and recommend the default.
+- One app per folder. No monorepos here.
+
+### `vibe-app.json` manifest (mandatory)
+
+At project root. CrawBot reads this to show the app in its UI with start/stop buttons. Schema:
+
+```json
+{
+  "$schema": "vibe-app/v1",
+  "slug": "quan-ly-chi-tieu",
+  "name": "App quản lý chi tiêu",
+  "description": "App ghi chép thu chi cá nhân, lưu trong máy.",
+  "version": "0.1.0",
+  "platform": "web",
+  "icon": "icon.png",
+  "createdAt": "2026-05-15T04:40:00+07:00",
+  "stack": ["next.js", "tailwind", "sqlite"],
+  "runtime": {
+    "node": ">=20",
+    "packageManager": "npm"
+  },
+  "scripts": {
+    "install": "npm install",
+    "dev": "npm run dev",
+    "start": "npm start",
+    "stop": null,
+    "build": "npm run build",
+    "doctor": "node scripts/doctor.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "url": "http://localhost:3000",
+  "ports": [3000],
+  "openOnStart": true,
+  "dataPaths": ["data/app.db", "data/backups/"],
+  "helpRoute": "/huong-dan",
+  "bugReportRoute": "/report-bug",
+  "rollbackHint": "Nhắn bé Amagi 'hoàn tác thay đổi cuối'."
+}
+```
+
+Field rules:
+
+- `platform`: `web` | `desktop` | `mobile`.
+- `scripts.dev`/`scripts.start`/`scripts.stop`: shell commands CrawBot will spawn. Set `stop: null` if a SIGTERM on the started process is enough (most cases).
+- `url`: web URL to open when app is started (`http://localhost:<port>`). For mobile, set to the Expo URL pattern or `null`.
+- `ports`: ports the app will bind; CrawBot uses this to detect collisions.
+- `openOnStart`: CrawBot opens `url` in the user's browser/Expo Go after start succeeds.
+- `dataPaths`: relative paths CrawBot exposes in a "Backup data" action.
+- `helpRoute` / `bugReportRoute`: routes where in-app help and bug reporter live (web). For mobile/desktop use screen names instead.
+
+Update the manifest on every change: version bump, new ports, new data paths, route changes.
+
+### Lifecycle contract for CrawBot
+
+Each app must guarantee:
+
+1. `scripts.install` is idempotent — re-running does not break state.
+2. `scripts.dev` (or `start`) prints something like `ready`/`listening`/`started` to stdout within 30 seconds. CrawBot uses this to mark the app as "running".
+3. Process responds to SIGTERM by shutting down cleanly within 10 seconds. If not, CrawBot will SIGKILL.
+4. App writes data only inside its own folder (`data/`, `bug-reports/`, etc.). No writes outside the project dir.
+5. Port from `ports[0]` is configurable via `PORT` env var so CrawBot can avoid collisions:
+   ```js
+   const port = Number(process.env.PORT ?? 3000);
+   ```
+6. Logs go to stdout/stderr (no custom log files needed — CrawBot captures the stream).
+
+### Platform-specific lifecycle notes
+
+**Web (Next.js):**
+- `dev`: `next dev -p $PORT`
+- `start`: `next start -p $PORT` (after `next build`)
+- CrawBot opens `http://localhost:$PORT` automatically.
+
+**Desktop (Electron/RN-desktop):**
+- `dev`: launch in dev mode.
+- `start`: launch packaged binary if available, else dev mode.
+- No URL; CrawBot just runs the process and shows logs.
+
+**Mobile (Expo):**
+- `dev`: `expo start --tunnel` so QR works regardless of network.
+- `start`: same as dev (no separate prod local run).
+- `url`: leave `null`; CrawBot surfaces the Expo QR/link from stdout instead.
+
 ## Project state files (must keep updated)
 
 Every project from this skill has these files. Agent updates them automatically after any change.
 
+- `vibe-app.json` — CrawBot manifest (see above). Must exist and stay in sync.
 - `docs/vibe-brief.md` — current goal, stack, scope. Source of truth.
 - `docs/vibe-changelog.md` — plain-VN list of shipped changes, newest first. One bullet per change.
 - `docs/install-desktop.md` or `docs/install-mobile.md` — non-tech install/share guide (see Platform mapping).
@@ -356,3 +450,4 @@ Append the version + date to `docs/vibe-changelog.md` for each release.
 - `references/mode-heuristics.md` — borderline mode decisions, examples.
 - `references/feature-add.md` — full Change-brief template + feature-addition checklist.
 - `references/bug-fix-loop.md` — failure classification cheatsheet for the auto bug-fix loop.
+- `references/crawbot-integration.md` — full `vibe-app.json` schema, lifecycle contract, examples per platform.
